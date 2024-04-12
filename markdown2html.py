@@ -37,7 +37,6 @@ def main():
 
         if sentences[-1] == '\n':
             sentences.pop()
-        print(sentences)
 
         for num, sentence in enumerate(sentences, 1):
             if sentence.startswith('-'):
@@ -51,20 +50,19 @@ def main():
             sentences.insert(first_ul, '<ul>')
 
         final_sentences = sentences
-        print(final_sentences)
 
         for num, sentence in enumerate(final_sentences):
             if sentence.startswith('#'):
                 values = re.split(r'(^#+)\s', sentence.strip())
                 title_level = str(len(values[1]))
                 title = values[2].strip()
-                final_sentences[num] = '<h' + title_level + '>' + title + '</h' + title_level + '>'
+                final_sentences[num] = ('<h' + title_level + '>' +
+                                        title + '</h' + title_level + '>')
 
             if sentence.startswith('-'):
                 unordered_list_elem = re.split(r'(^-)\s', sentence.strip())[2]
                 final_sentences[num] = '<li>' + unordered_list_elem + '</li>'
 
-        print(final_sentences)
         htmlfile.writelines(line + '\n' for line in final_sentences)
 
     with open(sys.argv[2], 'r') as f:
