@@ -29,25 +29,34 @@ def main():
 
     sentences = []
     unordered_list = []
+    ordered_list = []
     final_sentences = []
 
     with open(sys.argv[1], 'r') as mdfile, open(sys.argv[2], 'a') as htmlfile:
         for line in mdfile:
-            sentences.append(line)
+            sentences.append(line.strip())
 
-        if sentences[-1] == '\n':
+        if sentences[-1] == '':
             sentences.pop()
 
         for num, sentence in enumerate(sentences, 1):
             if sentence.startswith('-'):
                 unordered_list.append(num)
 
-        second_ul = unordered_list[-1]
-        first_ul = unordered_list[0] - 1
+            if sentence.startswith('*'):
+                ordered_list.append(num)
 
         if unordered_list:
+            second_ul = unordered_list[-1]
+            first_ul = unordered_list[0] - 1
             sentences.insert(second_ul, '</ul>')
-            sentences.insert(first_ul, '<ul>')
+            sentences.insert(first_ul, '<ol>')
+
+        if ordered_list:
+            second_ol = ordered_list[-1]
+            first_ol = ordered_list[0] - 1
+            sentences.insert(second_ol, '</ol>')
+            sentences.insert(first_ol, '<ol>')
 
         final_sentences = sentences
 
@@ -62,6 +71,10 @@ def main():
             if sentence.startswith('-'):
                 unordered_list_elem = re.split(r'(^-)\s', sentence.strip())[2]
                 final_sentences[num] = '<li>' + unordered_list_elem + '</li>'
+
+            if sentence.startswith('*'):
+                ordered_list_elem = sentence.split('* ')[1]
+                final_sentences[num] = '<li>' + ordered_list_elem + '</li>'
 
         htmlfile.writelines(line + '\n' for line in final_sentences)
 
