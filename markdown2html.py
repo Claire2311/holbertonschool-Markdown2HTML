@@ -14,11 +14,11 @@ import re
 
 
 def main():
-    """verify the presence of arguments and files"""
-    if len(sys.argv) <= 2:
-        print('Usage: ./markdown2html.py README.md '
-              'README.html', file=sys.stderr)
-        sys.exit(1)
+    # """verify the presence of arguments and files"""
+    # if len(sys.argv) <= 2:
+    #     print('Usage: ./markdown2html.py README.md '
+    #           'README.html', file=sys.stderr)
+    #     sys.exit(1)
 
     if ".md" in sys.argv[1]:
         path = './'
@@ -27,15 +27,39 @@ def main():
             print(f"Missing {sys.argv[1]}", file=sys.stderr)
             sys.exit(1)
 
+    sentences = []
+    unordered_list = []
+    final_sentences = []
+
     with open(sys.argv[1], 'r') as mdfile, open(sys.argv[2], 'a') as htmlfile:
         for line in mdfile:
-            if line.startswith('#'):
-                values = re.split(r'(^#+)\s', line.strip())
+            sentences.append(line)
+
+        for num, sentence in enumerate(sentences, 1):
+            if sentence.startswith('-'):
+                unordered_list.append(num)
+
+        second_ul = unordered_list[-1]
+        first_ul = unordered_list[0] - 1
+
+        if unordered_list:
+            sentences.insert(second_ul, '</ul>')
+            sentences.insert(first_ul, '<ul>')
+
+        final_sentences = sentences
+
+        for num, sentence in enumerate(final_sentences):
+            if sentence.startswith('#'):
+                values = re.split(r'(^#+)\s', sentence.strip())
                 title_level = str(len(values[1]))
                 title = values[2].strip()
-                final_title = ('<h' + title_level + '>' + 
-                               title + '</h' + title_level + '>')
-                htmlfile.write(final_title + '\n')
+                final_sentences[num] = '<h' + title_level + '>' + title + '</h' + title_level + '>'
+
+            if sentence.startswith('-'):
+                unordered_list_elem = re.split(r'(^-)\s', sentence.strip())[2]
+                final_sentences[num] = '<li>' + unordered_list_elem + '</li>'
+
+        htmlfile.writelines(line + '\n' for line in final_sentences)
 
     with open(sys.argv[2], 'r') as f:
         data = f.read()
