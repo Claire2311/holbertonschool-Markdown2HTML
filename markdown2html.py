@@ -38,7 +38,6 @@ def main():
 
         if sentences[-1] == '':
             sentences.pop()
-        print(sentences)
 
         for num, sentence in enumerate(sentences, 1):
             if sentence.startswith('-'):
