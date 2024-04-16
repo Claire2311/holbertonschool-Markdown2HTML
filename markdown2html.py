@@ -28,8 +28,6 @@ def main():
             sys.exit(1)
 
     sentences = []
-    unordered_list = []
-    ordered_list = []
     final_sentences = []
 
     with open(sys.argv[1], 'r') as mdfile, open(sys.argv[2], 'a') as htmlfile:
@@ -38,27 +36,55 @@ def main():
 
         if sentences[-1] == '':
             sentences.pop()
+        print(sentences)
 
-        for num, sentence in enumerate(sentences, 1):
-            if sentence.startswith('-'):
-                unordered_list.append(num)
+        for num, sentence in enumerate(sentences):
+            if sentences[num].startswith('#'):
+                final_sentences.append(sentences[num])
 
-            if sentence.startswith('*'):
-                ordered_list.append(num)
+            if sentences[num].startswith('-') and \
+                    not sentences[num-1].startswith('-'):
+                final_sentences.append("<ul>")
+                final_sentences.append(sentences[num])
 
-        if unordered_list:
-            second_ul = unordered_list[-1]
-            first_ul = unordered_list[0] - 1
-            sentences.insert(second_ul, '</ul>')
-            sentences.insert(first_ul, '<ol>')
+            if sentences[num].startswith('-') and \
+                    not sentences[num+1].startswith('-'):
+                final_sentences.append(sentences[num])
+                final_sentences.append("</ul>")
 
-        if ordered_list:
-            second_ol = ordered_list[-1]
-            first_ol = ordered_list[0] - 1
-            sentences.insert(second_ol, '</ol>')
-            sentences.insert(first_ol, '<ol>')
+            if sentences[num].startswith('-') and \
+                    sentences[num+1].startswith('-') and \
+                    sentences[num-1].startswith('-'):
+                final_sentences.append(sentences[num])
 
-        final_sentences = sentences
+            if sentences[num].startswith('*') and \
+                    not sentences[num-1].startswith('*'):
+                final_sentences.append("<ol>")
+                final_sentences.append(sentences[num])
+
+            if sentences[num].startswith('*') and \
+                    not sentences[num+1].startswith('*'):
+                final_sentences.append(sentences[num])
+                final_sentences.append("</ol>")
+
+            if sentences[num].startswith('*') and \
+                    sentences[num+1].startswith('*') and \
+                    sentences[num-1].startswith('*'):
+                final_sentences.append(sentences[num])
+
+            if re.match("^[a-zA-Z]+", sentences[num]) and \
+                    not re.match("^[a-zA-Z]+", sentences[num-1]):
+                final_sentences.append("<p>")
+                final_sentences.append(sentences[num])
+
+            if re.match("^[a-zA-Z]+", sentences[num]) and \
+                    re.match("^[a-zA-Z]+", sentences[num-1]):
+                final_sentences.append("<br />")
+                final_sentences.append(sentences[num])
+
+            if re.match("^[a-zA-Z]+", sentences[num]) and \
+                    (num == len(sentences)-1 or sentences[num+1] == ""):
+                final_sentences.append("</p>")
 
         for num, sentence in enumerate(final_sentences):
             if sentence.startswith('#'):
