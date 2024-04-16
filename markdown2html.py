@@ -14,11 +14,11 @@ import re
 
 
 def main():
-    # """verify the presence of arguments and files"""
-    # if len(sys.argv) <= 2:
-    #     print('Usage: ./markdown2html.py README.md '
-    #           'README.html', file=sys.stderr)
-    #     sys.exit(1)
+    """verify the presence of arguments and files"""
+    if len(sys.argv) <= 2:
+        print('Usage: ./markdown2html.py README.md '
+              'README.html', file=sys.stderr)
+        sys.exit(1)
 
     if ".md" in sys.argv[1]:
         path = './'
@@ -38,6 +38,7 @@ def main():
 
         if sentences[-1] == '':
             sentences.pop()
+        print(sentences)
 
         for num, sentence in enumerate(sentences, 1):
             if sentence.startswith('-'):
