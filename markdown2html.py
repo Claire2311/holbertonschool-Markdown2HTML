@@ -36,7 +36,6 @@ def main():
 
         if sentences[-1] == '':
             sentences.pop()
-        print(sentences)
 
         for num, sentence in enumerate(sentences):
             if sentences[num].startswith('#'):
