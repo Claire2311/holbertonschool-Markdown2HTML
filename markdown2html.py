@@ -56,6 +56,21 @@ def main():
                     sentences[num-1].startswith('-'):
                 final_sentences.append(sentences[num])
 
+            if re.match("^\\*\\s", sentences[num]) and \
+                    not re.match("^\\*\\s", sentences[num-1]):
+                final_sentences.append("<ol>")
+                final_sentences.append(sentences[num])
+
+            if re.match("^\\*\\s", sentences[num]) and \
+                    not re.match("^\\*\\s", sentences[num+1]):
+                final_sentences.append(sentences[num])
+                final_sentences.append("</ol>")
+
+            if re.match("^\\*\\s", sentences[num]) and \
+                    re.match("^\\*\\s", sentences[num+1]) and \
+                    re.match("^\\*\\s", sentences[num-1]):
+                final_sentences.append(sentences[num])
+
             if re.match("^[a-zA-Z]+", sentences[num]) and \
                     not re.match("^[a-zA-Z]+", sentences[num-1]):
                 final_sentences.append("<p>")
