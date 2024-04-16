@@ -56,21 +56,6 @@ def main():
                     sentences[num-1].startswith('-'):
                 final_sentences.append(sentences[num])
 
-            if sentences[num].startswith('*') and \
-                    not sentences[num-1].startswith('*'):
-                final_sentences.append("<ol>")
-                final_sentences.append(sentences[num])
-
-            if sentences[num].startswith('*') and \
-                    not sentences[num+1].startswith('*'):
-                final_sentences.append(sentences[num])
-                final_sentences.append("</ol>")
-
-            if sentences[num].startswith('*') and \
-                    sentences[num+1].startswith('*') and \
-                    sentences[num-1].startswith('*'):
-                final_sentences.append(sentences[num])
-
             if re.match("^[a-zA-Z]+", sentences[num]) and \
                     not re.match("^[a-zA-Z]+", sentences[num-1]):
                 final_sentences.append("<p>")
@@ -100,6 +85,15 @@ def main():
             if sentence.startswith('*'):
                 ordered_list_elem = sentence.split('* ')[1]
                 final_sentences[num] = '<li>' + ordered_list_elem + '</li>'
+
+        for num, sentence in enumerate(final_sentences):
+            if "**" in sentence:
+                final_sentences[num] = sentence.replace("**", "</b>")\
+                    .replace("</b>", "<b>", 1)
+
+            if "__" in sentence:
+                final_sentences[num] = sentence.replace("__", "</em>")\
+                    .replace("</em>", "<em>", 1)
 
         htmlfile.writelines(line + '\n' for line in final_sentences)
 
