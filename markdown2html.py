@@ -11,6 +11,7 @@ Usage: python3 markdown2html.py input.md output.html
 import sys
 import os.path
 import re
+import hashlib
 
 
 def main():
@@ -30,7 +31,8 @@ def main():
     sentences = []
     final_sentences = []
 
-    with open(sys.argv[1], 'r') as mdfile, open(sys.argv[2], 'a') as htmlfile:
+    with open(sys.argv[1], 'r', encoding='utf-8') as mdfile, \
+            open(sys.argv[2], 'a', encoding='utf-8') as htmlfile:
         for line in mdfile:
             sentences.append(line.strip())
 
@@ -71,17 +73,22 @@ def main():
                     re.match("^\\*\\s", sentences[num-1]):
                 final_sentences.append(sentences[num])
 
-            if re.match("^[a-zA-Z]+", sentences[num]) and \
-                    not re.match("^[a-zA-Z]+", sentences[num-1]):
+            if ((re.match("^[a-zA-Z]+", sentences[num]) or
+                    sentences[num].startswith("((")) 
+                    and not (re.match("^[a-zA-Z]+", sentences[num-1]) or
+                             sentences[num-1].startswith("(("))):
                 final_sentences.append("<p>")
                 final_sentences.append(sentences[num])
 
-            if re.match("^[a-zA-Z]+", sentences[num]) and \
-                    re.match("^[a-zA-Z]+", sentences[num-1]):
+            if (re.match("^[a-zA-Z]+", sentences[num]) or
+                sentences[num].startswith("((")) and \
+                (re.match("^[a-zA-Z]+", sentences[num-1]) or
+                 sentences[num-1].startswith("((")):
                 final_sentences.append("<br />")
                 final_sentences.append(sentences[num])
 
-            if re.match("^[a-zA-Z]+", sentences[num]) and \
+            if (re.match("^[a-zA-Z]+", sentences[num]) or
+                    sentences[num].startswith("((")) and \
                     (num == len(sentences)-1 or sentences[num+1] == ""):
                 final_sentences.append("</p>")
 
@@ -110,11 +117,26 @@ def main():
                 final_sentences[num] = sentence.replace("__", "</em>")\
                     .replace("</em>", "<em>", 1)
 
+            if "[[" in sentence:
+                text = sentence.split("[[")[1].replace("]]", "")
+                hash_object = hashlib.md5(text.encode())
+                md5_hash = hash_object.hexdigest()
+                final_sentences[num] = sentence.split("[[")[0] + md5_hash
+
+            if sentence.startswith('('):
+                final_sentences[num] = (
+                    sentence
+                    .replace("((", "")
+                    .replace("))", "")
+                    .replace("C", "")
+                    .replace("c", "")
+                )
+
         htmlfile.writelines(line + '\n' for line in final_sentences)
 
-    with open(sys.argv[2], 'r') as f:
+    with open(sys.argv[2], 'r', encoding='utf-8') as f:
         data = f.read()
-        with open(sys.argv[2], 'w') as w:
+        with open(sys.argv[2], 'w', encoding='utf-8') as w:
             w.write(data[:-1])
 
 
